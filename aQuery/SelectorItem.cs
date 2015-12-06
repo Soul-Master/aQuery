@@ -20,6 +20,26 @@ namespace aQuery
         public string Selector { get; set; }
         public TreeScope Scope { get; set; }
 
+        public Condition CreatePropertyCondition(AutomationProperty prop, object value)
+        {
+            if (!(value is string))
+            {
+                return new PropertyCondition(prop, value);
+            }
+
+            var stringValue = (string) value;
+            if (!string.IsNullOrEmpty(stringValue))
+            {
+                return new PropertyCondition(prop, stringValue);
+            }
+
+            return new OrCondition(
+                new PropertyCondition(prop, null),
+                new PropertyCondition(prop, string.Empty),
+                new PropertyCondition(prop, " ")
+            );
+        }
+
         public Condition GetCondition()
         {
             var match = SelectorPattern.Match(Selector);
@@ -28,11 +48,11 @@ namespace aQuery
             var conditions = new List<Condition>();
             if (match.Groups[1].Success)
             {
-                conditions.Add(new PropertyCondition(AutomationElement.NameProperty, match.Groups[2].Value));
+                conditions.Add(CreatePropertyCondition(AutomationElement.NameProperty, match.Groups[2].Value));
             }
             if (match.Groups[3].Success)
             {
-                conditions.Add(new PropertyCondition(AutomationElement.LocalizedControlTypeProperty, match.Groups[5].Value));
+                conditions.Add(CreatePropertyCondition(AutomationElement.LocalizedControlTypeProperty, match.Groups[5].Value));
             }
 
             var propGroup = match.Groups[6];
@@ -57,8 +77,10 @@ namespace aQuery
                     var propertyInfoType = infoType.GetProperty(propertyName);
 
                     var automationProperty = (AutomationProperty) fieldInfo.GetValue(null);
+                    propertyValue = !string.IsNullOrEmpty(propertyValue) ? propertyValue : string.Empty;
                     var rawPropertyValue = Convert.ChangeType(propertyValue, propertyInfoType.PropertyType);
-                    conditions.Add(new PropertyCondition(automationProperty, rawPropertyValue));
+
+                    conditions.Add(CreatePropertyCondition(automationProperty, rawPropertyValue));
                 }
             }
 

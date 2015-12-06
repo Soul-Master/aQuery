@@ -31,8 +31,8 @@ namespace aQuery
             var selector = string.Empty;
             var el = element.Current;
             selector += "'" + (!string.IsNullOrEmpty(el.Name) ? el.Name : string.Empty) + "' ";
-            selector += !string.IsNullOrEmpty(el.LocalizedControlType) ? el.LocalizedControlType : "(null)";
-            selector += !string.IsNullOrEmpty(el.ClassName) ? $"[ClassName={el.ClassName}]" : "[ClassName=(null)]";
+            selector += !string.IsNullOrEmpty(el.LocalizedControlType) ? el.LocalizedControlType : "";
+            selector += !string.IsNullOrEmpty(el.ClassName) ? $"[ClassName={el.ClassName}]" : "[ClassName=]";
 
             return selector;
         }
@@ -94,35 +94,59 @@ namespace aQuery
 
             return result;
         }
-
-        private const int MaxTryAmount = 40;
-        public static aQuery Find(this AutomationElement element, string selector)
+        
+        public static aQuery Find(this AutomationElement element, string selector, int maxRetry = 19)
         {
             aQuery result = null;
             var selectorItems = SelectorItem.SplitSelector(selector);
-            var counter = MaxTryAmount;
+            var counter = maxRetry;
 
-            while (counter > 0)
+            while (counter >= 0)
             {
-                var attempt = MaxTryAmount - counter + 1;
-                if (attempt > 1)
-                {
-                    Console.WriteLine("attempt " + attempt);
-                }
-
                 result = element.Find(selectorItems);
 
                 if (result.IsExists) return result;
                 counter--;
 
-                if (attempt != MaxTryAmount)
+                if (counter >= 0)
                 {
                     Thread.Sleep(50);
                 }
             }
-
-            Console.WriteLine("Cannot find element");
+            
             return result;
+        }
+
+        public static string GetValue(this AutomationElement element)
+        {
+            object patternObj;
+            if (element.TryGetCurrentPattern(ValuePattern.Pattern, out patternObj))
+            {
+                var valuePattern = (ValuePattern)patternObj;
+                return valuePattern.Current.Value;
+            }
+
+            return null;
+        }
+
+        public static string GetText(this AutomationElement element)
+        {
+            object patternObj;
+
+            if (element.TryGetCurrentPattern(TextPattern.Pattern, out patternObj))
+            {
+                var textPattern = (TextPattern)patternObj;
+                return textPattern.DocumentRange.GetText(-1).TrimEnd('\r'); // often there is an extra '\r' hanging off the end.
+            }
+
+            var result = element.GetValue();
+
+            return !string.IsNullOrEmpty(result) ? result : element.Current.Name;
+        }
+
+        public static bool IsVisible(this AutomationElement element)
+        {
+            return !element.Current.IsOffscreen;
         }
 
         #region Action

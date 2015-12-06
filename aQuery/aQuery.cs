@@ -55,7 +55,7 @@ namespace aQuery
         }
 
         #endregion
-        
+
         static Action<TimeSpan?> Log(string name, string argument = null)
         {
             Action<TimeSpan?> action = timeSpan =>
@@ -90,6 +90,36 @@ namespace aQuery
         public string GetSelector()
         {
             return Element.GetSelector();
+        }
+
+        public string Text()
+        {
+            using (PerformanceTester.Start(Log(nameof(Text))))
+            {
+                if (Element == null) return null;
+
+                return Element.GetText();
+            }
+        }
+
+        public string Value()
+        {
+            using (PerformanceTester.Start(Log(nameof(Value))))
+            {
+                if (Element == null) return null;
+
+                return Element.GetValue();
+            }
+        }
+
+        public bool IsVisible()
+        {
+            using (PerformanceTester.Start(Log(nameof(IsVisible))))
+            {
+                if (Element == null) return false;
+
+                return Element.IsVisible();
+            }
         }
 
         #region Action
