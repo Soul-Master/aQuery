@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>aQuery</RootNamespace>
     <AssemblyName>aQuery</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -34,12 +35,8 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
     <Reference Include="UIAutomationClient" />
     <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
@@ -54,8 +51,13 @@
     <Compile Include="SelectorItem.cs" />
     <Compile Include="SelectorType.cs" />
     <Compile Include="Win32Helpers.cs" />
+    <Compile Include="Win32\AllocationType.cs" />
+    <Compile Include="Win32\FreeType.cs" />
+    <Compile Include="Win32\MemoryProtection.cs" />
     <Compile Include="Win32\NativeMethods.cs" />
+    <Compile Include="Win32\ProcessAccessFlags.cs" />
     <Compile Include="Win32\SafeNativeMethods.cs" />
+    <Compile Include="Win32\SYSTEMTIME.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

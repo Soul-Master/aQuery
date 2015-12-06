@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Automation;
 using System.Windows.Forms;
+using aQuery.Win32;
 
 namespace aQuery
 {
@@ -30,6 +32,7 @@ namespace aQuery
             var el = element.Current;
             selector += "'" + (!string.IsNullOrEmpty(el.Name) ? el.Name : string.Empty) + "' ";
             selector += !string.IsNullOrEmpty(el.LocalizedControlType) ? el.LocalizedControlType : "(null)";
+            selector += !string.IsNullOrEmpty(el.ClassName) ? $"[ClassName={el.ClassName}]" : "[ClassName=(null)]";
 
             return selector;
         }
@@ -203,6 +206,41 @@ namespace aQuery
                 element.SetFocus();
 
                 ((ValuePattern)valuePattern).SetValue(value);
+            }
+        }
+
+        public static void SetDateTime(this AutomationElement element, DateTime value)
+        {
+            var sysTime = new SYSTEMTIME(value);
+            var structMemLen = Marshal.SizeOf(typeof(SYSTEMTIME));
+            var buffer = new byte[structMemLen];
+
+            //Assign the values as you prefer
+            var dataPtr = Marshal.AllocHGlobal(structMemLen);
+            Marshal.StructureToPtr(sysTime, dataPtr, true);
+            Marshal.Copy(dataPtr, buffer, 0, structMemLen);
+            Marshal.FreeHGlobal(dataPtr);
+
+            var hndProc = IntPtr.Zero;
+            var lpAddress = IntPtr.Zero;
+            try
+            {
+                Win32Helpers.InjectMemory(element.Current.ProcessId, buffer, out hndProc, out lpAddress);
+                SafeNativeMethods.SendMessage((IntPtr)element.Current.NativeWindowHandle, NativeMethods.DTM_SETSYSTEMTIME, (IntPtr)NativeMethods.GDT_VALID, lpAddress);
+            }
+            finally
+            {
+                // release memory and close handle
+                if (lpAddress != (IntPtr)0 || lpAddress != IntPtr.Zero)
+                {
+                    // we don't really care about the result because if release fails there is nothing we can do about it
+                    SafeNativeMethods.VirtualFreeEx(hndProc, lpAddress, 0, FreeType.Release);
+                }
+
+                if (hndProc != (IntPtr)0 || hndProc != IntPtr.Zero)
+                {
+                    SafeNativeMethods.CloseHandle(hndProc);
+                }
             }
         }
 

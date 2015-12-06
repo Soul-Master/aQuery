@@ -15,7 +15,8 @@ namespace aQuery
             {ChildrenSeparator, TreeScope.Children},
             {DescendantsSeparator, TreeScope.Descendants}
         };
-        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([\s\S]+))?$", RegexOptions.Compiled);
+        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[]+))?(\[[a-z_]+=[^\]]*\])*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static Regex PropertySelectorPattern = new Regex(@"\[([a-z_]+)=([^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public string Selector { get; set; }
         public TreeScope Scope { get; set; }
 
@@ -32,6 +33,33 @@ namespace aQuery
             if (match.Groups[3].Success)
             {
                 conditions.Add(new PropertyCondition(AutomationElement.LocalizedControlTypeProperty, match.Groups[5].Value));
+            }
+
+            var propGroup = match.Groups[6];
+            if (propGroup.Success)
+            {
+                foreach (Capture prop in propGroup.Captures)
+                {
+                    var propertyMatch = PropertySelectorPattern.Match(prop.Value);
+
+                    if (!propertyMatch.Success) continue;
+                    var propertyName = propertyMatch.Groups[1].Value;
+                    var propertyValue = propertyMatch.Groups[2].Success ? propertyMatch.Groups[2].Value : string.Empty;
+                    var fieldInfo = typeof(AutomationElement).GetField(propertyName + "Property", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
+
+                    if (fieldInfo == null)
+                    {
+                        Console.WriteLine($"Property Name: `{propertyName}` doesn't found.");
+                        continue;
+                    }
+
+                    var infoType = typeof(AutomationElement.AutomationElementInformation);
+                    var propertyInfoType = infoType.GetProperty(propertyName);
+
+                    var automationProperty = (AutomationProperty) fieldInfo.GetValue(null);
+                    var rawPropertyValue = Convert.ChangeType(propertyValue, propertyInfoType.PropertyType);
+                    conditions.Add(new PropertyCondition(automationProperty, rawPropertyValue));
+                }
             }
 
             return conditions.Count > 1 ? conditions.Aggregate((x, y) => new AndCondition(x, y)) : conditions[0];

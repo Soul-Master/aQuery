@@ -19,9 +19,23 @@ namespace aQuery
             return process;
         }
 
-        public static Process RunProgram(string programPath)
+        public static Process RunProgram(string programPath, string arguments = null)
         {
-            return Run($"\"{programPath}\"");
+            var process = new Process();
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = programPath
+            };
+            if (arguments != null)
+            {
+                startInfo.Arguments = arguments;
+            }
+
+            process.StartInfo = startInfo;
+            process.Start();
+            process.WaitForInputIdle();
+
+            return process;
         }
 
         public static void KillProcess(string programName)

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Windows.Automation;
@@ -10,7 +9,7 @@ namespace aQuery
     // ReSharper disable once InconsistentNaming
     public class aQuery
     {
-        internal AutomationElement Element;
+        public AutomationElement Element;
         public bool IsExists => Element != null;
 
         #region Constructor
@@ -130,13 +129,25 @@ namespace aQuery
             }
         }
 
-        public aQuery SetText(string value)
+        public aQuery Text(string value)
         {
-            using (PerformanceTester.Start(Log(nameof(SetText), $"\"{value}\"")))
+            using (PerformanceTester.Start(Log("(Set)" + nameof(Text), $"\"{value}\"")))
             {
                 if (Element == null) return this;
 
                 Element.SetText(value);
+
+                return this;
+            }
+        }
+
+        public aQuery DateTime(DateTime value)
+        {
+            using (PerformanceTester.Start(Log("(Set)" + nameof(DateTime), $"\"{value.ToShortDateString()}\"")))
+            {
+                if (Element == null) return this;
+
+                Element.SetDateTime(value);
 
                 return this;
             }
