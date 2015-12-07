@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="aQuery.aQuery">
+    <Position X="2.75" Y="0.75" Width="2.75" />
+    <Members>
+      <Method Name="a" Hidden="true" />
+      <Method Name="aQuery" Hidden="true" />
+      <Method Name="Click" Hidden="true" />
+      <Method Name="Log" Hidden="true" />
+      <Method Name="TryToClick" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAgAIQAAIAAAgIAEQwAAQgCAAAAgA=</HashCode>
+      <FileName>aQuery.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.AutomationElementHelpers">
+    <Position X="7.75" Y="0.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AABAAAAAIAAAEEAIEIAAAAIAAAAIQAAAAAAAAAAACgA=</HashCode>
+      <FileName>AutomationElementHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.ConditionModel">
+    <Position X="2.75" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>ACAEAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ConditionModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.ContainsPropertyValueCondition" Collapsed="true">
+    <Position X="5" Y="9.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ContainsPropertyValueCondition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.CustomConditionHelpers" Collapsed="true">
+    <Position X="9.5" Y="5.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>CustomConditionHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.CustomPropertyCondition" Collapsed="true">
+    <Position X="3" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAgAQAAAAA=</HashCode>
+      <FileName>CustomPropertyCondition.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="aQuery.ElementAtFilter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.25" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAEAAAAAAAA=</HashCode>
+      <FileName>ElementAtFilter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="aQuery.EndWithsPropertyValueCondition" Collapsed="true">
+    <Position X="2.75" Y="9.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>EndWithsPropertyValueCondition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.FilterHelpers" Collapsed="true">
+    <Position X="9.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>FilterHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.MatchSelectorCondition">
+    <Position X="1" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MatchSelectorCondition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.ProcessHelpers">
+    <Position X="7.75" Y="4.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAEAAAAAAAACAAAAAAAAAAAAAAAgAI=</HashCode>
+      <FileName>ProcessHelpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.SelectorItem">
+    <Position X="5" Y="4.25" Width="2" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AIAgAAAAAAIAASAAAAAAAAAAAAAAQAAARECAAAEAAAA=</HashCode>
+      <FileName>SelectorItem.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.StartWithsPropertyValueCondition" Collapsed="true">
+    <Position X="0.5" Y="9.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>StartWithsPropertyValueCondition.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.Win32Helpers">
+    <Position X="15.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAgA=</HashCode>
+      <FileName>Win32Helpers.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.Log.PerformanceTester" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.5" Y="4.25" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAQAAAAABAAQAAAAAAAAAAA=</HashCode>
+      <FileName>Log\PerformanceTester.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="aQuery.Win32.NativeMethods" Collapsed="true">
+    <Position X="15.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gCAEAAAAACAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Win32\NativeMethods.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.Win32.SafeNativeMethods">
+    <Position X="13.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAEAACAAACAAAIAAAAgAAgAAAAAAAAA=</HashCode>
+      <FileName>Win32\SafeNativeMethods.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.Win32.SYSTEMTIME" Collapsed="true">
+    <Position X="15.25" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAEAEAAAAAEAAAAQAAAAAABAAAAABM=</HashCode>
+      <FileName>Win32\SYSTEMTIME.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="aQuery.FirstFilter" Collapsed="true">
+    <Position X="7.5" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>FirstFilter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="aQuery.LastFilter" Collapsed="true">
+    <Position X="11" Y="8" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>LastFilter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Interface Name="aQuery.ICustomCondition" Collapsed="true">
+    <Position X="3" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ICustomCondition.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="aQuery.ICustomFilter" Collapsed="true">
+    <Position X="9" Y="7.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ICustomFilter.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Enum Name="aQuery.SelectorType" Collapsed="true">
+    <Position X="13.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SelectorType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="aQuery.Win32.AllocationType" Collapsed="true">
+    <Position X="13.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAABAABAAEAAAAAAAQCAAAAAIAAAACABAAAAA=</HashCode>
+      <FileName>Win32\AllocationType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="aQuery.Win32.FreeType" Collapsed="true">
+    <Position X="13.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAA=</HashCode>
+      <FileName>Win32\FreeType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="aQuery.Win32.MemoryProtection" Collapsed="true">
+    <Position X="13.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAABAAAAAIAAQgAAIAAAQAAAAAAgAAAAAIAAAggAA=</HashCode>
+      <FileName>Win32\MemoryProtection.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="aQuery.Win32.ProcessAccessFlags" Collapsed="true">
+    <Position X="13.5" Y="8.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAQAAAAAAAAAABAAAEAAAAAABAAAgIICEAAAAgAA=</HashCode>
+      <FileName>Win32\ProcessAccessFlags.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
