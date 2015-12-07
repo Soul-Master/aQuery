@@ -10,6 +10,7 @@ Overview
 Here is the simplest form of aQuery syntax. The following statement use aQuery to select window element with ProcessId equals `1234`
 
 ```C#
+// Syntax of C# 6.0
 using static aQuery.aQuery;
 
 var window = a("window[ProcessId=1234]");
