@@ -52,8 +52,10 @@
     <Compile Include="ElementAtFilter.cs" />
     <Compile Include="EndWithsPropertyValueCondition.cs" />
     <Compile Include="FilterHelpers.cs" />
+    <Compile Include="FirstFilter.cs" />
     <Compile Include="ICustomCondition.cs" />
     <Compile Include="ICustomFilter.cs" />
+    <Compile Include="LastFilter.cs" />
     <Compile Include="Log\PerformanceTester.cs" />
     <Compile Include="MatchSelectorCondition.cs" />
     <Compile Include="ProcessHelpers.cs" />
@@ -69,6 +71,9 @@
     <Compile Include="Win32\ProcessAccessFlags.cs" />
     <Compile Include="Win32\SafeNativeMethods.cs" />
     <Compile Include="Win32\SYSTEMTIME.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Overview.cd" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -70,7 +70,7 @@ namespace aQuery
         }
 
         [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
-        public static List<AutomationElement> Find(this AutomationElement element, List<SelectorItem> selectorItems , int index)
+        public static List<AutomationElement> Find(this AutomationElement element, List<SelectorItem> selectorItems, int index)
         {
             var result = new List<AutomationElement>();
             var selectorItem = selectorItems[index];
@@ -134,7 +134,7 @@ namespace aQuery
 
             return result;
         }
-        
+
         public static List<AutomationElement> Find(this AutomationElement element, string selector, int maxRetry = 19)
         {
             List<AutomationElement> result = null;
@@ -153,30 +153,24 @@ namespace aQuery
                     Thread.Sleep(50);
                 }
             }
-            
+
             return result;
         }
 
         public static string GetValue(this AutomationElement element)
         {
-            object patternObj;
-            if (element.TryGetCurrentPattern(ValuePattern.Pattern, out patternObj))
-            {
-                var valuePattern = (ValuePattern)patternObj;
-                return valuePattern.Current.Value;
-            }
+            var patternObj = element.GetPattern<ValuePattern>();
 
-            return null;
+            return patternObj?.Current.Value;
         }
 
         public static string GetText(this AutomationElement element)
         {
-            object patternObj;
+            var patternObj = element.GetPattern<TextPattern>();
 
-            if (element.TryGetCurrentPattern(TextPattern.Pattern, out patternObj))
+            if (patternObj != null)
             {
-                var textPattern = (TextPattern)patternObj;
-                return textPattern.DocumentRange.GetText(-1).TrimEnd('\r'); // often there is an extra '\r' hanging off the end.
+                return patternObj.DocumentRange.GetText(-1).TrimEnd('\r'); // often there is an extra '\r' hanging off the end.
             }
 
             var result = element.GetValue();
@@ -193,16 +187,11 @@ namespace aQuery
 
         public static bool Click(this AutomationElement element)
         {
-            object objPattern;
+            var patternObj = element.GetPattern<InvokePattern>();
 
-            if (!element.TryGetCurrentPattern(InvokePattern.Pattern, out objPattern))
-            {
-                return false;
-            }
-
-            var invPattern = (InvokePattern)objPattern;
-            invPattern?.Invoke();
-
+            if (patternObj == null) return false;
+            
+            patternObj.Invoke();
             return true;
         }
 
@@ -222,7 +211,7 @@ namespace aQuery
                 return false;
             }
         }
-        
+
         public static void SetText(this AutomationElement element, string value)
         {
             // Validate arguments / initial setup
@@ -245,10 +234,16 @@ namespace aQuery
                     + "is read-only.\n\n");
             }
 
-
-            object valuePattern;
-            if (!element.TryGetCurrentPattern(
-                ValuePattern.Pattern, out valuePattern))
+            var valuePattern = element.GetPattern<ValuePattern>();
+            if (valuePattern != null)
+            {
+                // Control supports the ValuePattern pattern so we can 
+                // use the SetValue method to insert content.
+                // Set focus for input functionality and begin.
+                element.SetFocus();
+                valuePattern.SetValue(value);
+            }
+            else
             {
                 // Set focus for input functionality and begin.
                 element.SetFocus();
@@ -261,15 +256,6 @@ namespace aQuery
                 SendKeys.SendWait("^+{END}");   // Select everything
                 SendKeys.SendWait("{DEL}");     // Delete selection
                 SendKeys.SendWait(value);
-            }
-            else
-            {
-                // Control supports the ValuePattern pattern so we can 
-                // use the SetValue method to insert content.
-                // Set focus for input functionality and begin.
-                element.SetFocus();
-
-                ((ValuePattern)valuePattern).SetValue(value);
             }
 
             SendKeys.SendWait("{ENTER}");
@@ -308,6 +294,19 @@ namespace aQuery
                     SafeNativeMethods.CloseHandle(hndProc);
                 }
             }
+        }
+
+        public static T GetPattern<T>(this AutomationElement element)
+            where T : BasePattern
+        {
+            object objPattern;
+            var patternType = typeof(T);
+            var pattern = patternType.GetField("Pattern");
+            var patternValue = (AutomationPattern)pattern.GetValue(null);
+
+            if (!element.TryGetCurrentPattern(patternValue, out objPattern)) return null;
+
+            return (T)objPattern;
         }
 
         #endregion

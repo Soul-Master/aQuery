@@ -15,9 +15,9 @@ namespace aQuery
             {ChildrenSeparator, TreeScope.Children},
             {DescendantsSeparator, TreeScope.Descendants}
         };
-        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[]+))?(\[[a-z_]+[\*\^\$]?=[^\]]*\])*(\:[a-z]+\([^\)]+\))*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[]+))?(\[[a-z_]+[\*\^\$]?=[^\]]*\])*(\:[a-z]+(\([^\)]+\))?)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         public static Regex PropertySelectorPattern = new Regex(@"\[([a-z_]+)([\*\^\$])?=([^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        public static Regex FilterPattern = new Regex(@"\:([a-z]+)\(([^\)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public static Regex FilterPattern = new Regex(@"\:([a-z]+)(\(([^\)]+)\))?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public string Selector { get; set; }
         public TreeScope Scope { get; set; }
 
@@ -114,7 +114,7 @@ namespace aQuery
 
                     if (!filterMatch.Success) continue;
 
-                    var filterCondition = FilterHelpers.CreateFilter(filterMatch.Groups[1].Value, filterMatch.Groups[2].Value);
+                    var filterCondition = FilterHelpers.CreateFilter(filterMatch.Groups[1].Value, filterMatch.Groups[3].Success ? filterMatch.Groups[3].Value : null);
                     if (filterCondition != null) customFilters.Add(filterCondition);
                 }
             }

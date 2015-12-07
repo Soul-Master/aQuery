@@ -216,6 +216,22 @@ namespace aQuery
             }
         }
 
+        public aQuery SelectItem()
+        {
+            using (PerformanceTester.Start(Log(nameof(SelectItem))))
+            {
+                if (Elements == null) return this;
+
+                Elements.ForEach(x =>
+                {
+                    var selectionItem = x.GetPattern<SelectionItemPattern>();
+                    selectionItem.AddToSelection();
+                });
+
+                return this;
+            }
+        }
+
         #endregion
     }
 }

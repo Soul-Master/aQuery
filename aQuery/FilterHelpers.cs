@@ -7,6 +7,8 @@
             switch (filterName)
             {
                 case "eq": return new ElementAtFilter(filterValue);
+                case "last": return new LastFilter();
+                case "first": return new FirstFilter();
             }
 
             return null;
