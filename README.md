@@ -30,5 +30,20 @@ As you know, the hardest part of automating application on Windows desktop is se
 
 ![Calculator App](demo/Calculator1.png?raw=true "Title")
 
-Most of control property that we can retrieve via  [AutomationElement](https://msdn.microsoft.com/en-us/library/system.windows.automation.automationelement(v=vs.110).aspx)
-![Calculator App](demo/Calculator2.png?raw=true "Title") doesn't unique. So I decide to simplify this process by creating aQuery that can query element with jQuery-syntax like command.
+Most of control properties that we can retrieve via  [AutomationElement](https://msdn.microsoft.com/en-us/library/system.windows.automation.automationelement(v=vs.110).aspx) doesn't unique. We cannot select control by using only one property.
+
+![Calculator App](demo/Calculator2.png?raw=true "Title") 
+
+So I decide to simplify this process by creating aQuery (AutomationElement wrapper) that can query element with jQuery-syntax like command. This is the syntax that currently supports by aQuery.
+
+```text
+'{Name Property}' {LocalizedControlType}[{PropertyName}={PropertyValue}]:{filterName}({filterValue})
+```
+
+For selecting title bar of Calculator, you can use one of the following selectors if it doesn't duplicate with other controls.
+
+- `"'Calculator'"` specify only Name property
+- `"title bar"` specify only LocalizedControlType property
+- `"'Calculator' title bar"` specify by Name and LocalizedControlType properties
+- `[AutomationId=TitleBar][ControlType=ControlType.TitleBar]` specify by some properties
+- `title bar:first` specify by `LocalizedControlType` property and get the first one
