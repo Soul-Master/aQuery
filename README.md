@@ -6,7 +6,7 @@ aQuery is a fast, small, and feature-rich C# library that based on [Windows Auto
 Overview
 ---------
 
-![Overview image](./aQuery/Overview.PNG?raw=true)
+![Overview image](https://cdn.rawgit.com/Soul-Master/aQuery/master/aQuery/Overview.PNG)
 
 Here is the simplest form of aQuery syntax. The following statement use aQuery to select window element with ProcessId equals `1234`
 
@@ -30,11 +30,11 @@ Selectors
 ---------
 As you know, the hardest part of automating application on Windows desktop is selecting control. Normally, application isn't designed to be queried. Control structure doesn't look simple just like normal web page.
 
-![Calculator App](demo/Calculator1.png?raw=true "Title")
+![Calculator App](https://cdn.rawgit.com/Soul-Master/aQuery/master/Calculator1.png)
 
 Most of control properties that we can retrieve via  [AutomationElement](https://msdn.microsoft.com/en-us/library/system.windows.automation.automationelement(v=vs.110).aspx) doesn't unique. We cannot select control by using only one property.
 
-![Calculator App](demo/Calculator2.png?raw=true "Title") 
+![Calculator App](https://cdn.rawgit.com/Soul-Master/aQuery/master/demo/Calculator2.png) 
 
 So I decide to simplify this process by creating aQuery (AutomationElement wrapper) that can query element with jQuery-syntax like command. This is the syntax that currently supports by aQuery.
 
@@ -50,4 +50,4 @@ For selecting title bar of Calculator, you can use one of the following selector
 - `[AutomationId=TitleBar][ControlType=ControlType.TitleBar]` specify by some properties
 - `title bar:first` specify by `LocalizedControlType` property and get the first one
 
-For more example, please look at source code of [aQuery.Amibroker](aQuery.Amibroker) project. It contains a lot of useful code for using aQuery.
+For more example, please look at source code of [aQuery.Amibroker](https://github.com/Soul-Master/aQuery/tree/master/aQuery.Amibroker) project. It contains a lot of useful code for using aQuery.
