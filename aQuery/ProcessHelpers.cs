@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics;
+using System.Linq;
+using System.Management;
 
 namespace aQuery
 {
@@ -38,12 +40,36 @@ namespace aQuery
             return process;
         }
 
+        public static Process[] FindProcess(string programName)
+        {
+            return Process.GetProcessesByName(programName);
+        }
+
         public static void KillProcess(string programName)
         {
-            foreach (var process in Process.GetProcessesByName(programName))
+            foreach (var process in FindProcess(programName))
             {
                 process.Kill();
             }
+        }
+        public static string GetMainModuleFilepath(this Process process)
+        {
+            var wmiQueryString = "SELECT ProcessId, ExecutablePath FROM Win32_Process WHERE ProcessId = " + process.Id;
+
+            using (var searcher = new ManagementObjectSearcher(wmiQueryString))
+            {
+                using (var results = searcher.Get())
+                {
+                    var mo = results.Cast<ManagementObject>().FirstOrDefault();
+
+                    if (mo != null)
+                    {
+                        return (string)mo["ExecutablePath"];
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -15,12 +15,16 @@ namespace aQuery
             {ChildrenSeparator, TreeScope.Children},
             {DescendantsSeparator, TreeScope.Descendants}
         };
-        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[]+))?(\[[a-z_]+=[^\]]*\])*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-        public static Regex PropertySelectorPattern = new Regex(@"\[([a-z_]+)=([^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[]+))?(\[[a-z_]+[\*\^\$]?=[^\]]*\])*(\:[a-z]+\([^\)]+\))*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static Regex PropertySelectorPattern = new Regex(@"\[([a-z_]+)([\*\^\$])?=([^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        public static Regex FilterPattern = new Regex(@"\:([a-z]+)\(([^\)]+)\)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public string Selector { get; set; }
         public TreeScope Scope { get; set; }
 
-        public Condition CreatePropertyCondition(AutomationProperty prop, object value)
+        private ConditionModel _selectorCondition;
+        public ConditionModel SelectorCondition => _selectorCondition ?? (_selectorCondition = GetCondition(this));
+
+        public static Condition CreatePropertyCondition(AutomationProperty prop, object value)
         {
             if (!(value is string))
             {
@@ -40,19 +44,28 @@ namespace aQuery
             );
         }
 
-        public Condition GetCondition()
+        public static ConditionModel GetCondition(SelectorItem item)
         {
-            var match = SelectorPattern.Match(Selector);
-            if (!match.Success) return Condition.TrueCondition;
+            var match = SelectorPattern.Match(item.Selector);
+            var result = new ConditionModel();
 
-            var conditions = new List<Condition>();
+            if (!match.Success)
+            {
+                result.NativeCondition = Condition.TrueCondition;
+                return result;
+            }
+
+            var nativeConditions = new List<Condition>();
+            var customConditions = new List<ICustomCondition>();
+            var customFilters = new List<ICustomFilter>();
+
             if (match.Groups[1].Success)
             {
-                conditions.Add(CreatePropertyCondition(AutomationElement.NameProperty, match.Groups[2].Value));
+                nativeConditions.Add(CreatePropertyCondition(AutomationElement.NameProperty, match.Groups[2].Value));
             }
             if (match.Groups[3].Success)
             {
-                conditions.Add(CreatePropertyCondition(AutomationElement.LocalizedControlTypeProperty, match.Groups[5].Value));
+                nativeConditions.Add(CreatePropertyCondition(AutomationElement.LocalizedControlTypeProperty, match.Groups[5].Value));
             }
 
             var propGroup = match.Groups[6];
@@ -64,7 +77,8 @@ namespace aQuery
 
                     if (!propertyMatch.Success) continue;
                     var propertyName = propertyMatch.Groups[1].Value;
-                    var propertyValue = propertyMatch.Groups[2].Success ? propertyMatch.Groups[2].Value : string.Empty;
+                    var propertyOperation = propertyMatch.Groups[2];
+                    var propertyValue = propertyMatch.Groups[3].Success ? propertyMatch.Groups[3].Value : string.Empty;
                     var fieldInfo = typeof(AutomationElement).GetField(propertyName + "Property", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
 
                     if (fieldInfo == null)
@@ -75,16 +89,41 @@ namespace aQuery
 
                     var infoType = typeof(AutomationElement.AutomationElementInformation);
                     var propertyInfoType = infoType.GetProperty(propertyName);
-
                     var automationProperty = (AutomationProperty) fieldInfo.GetValue(null);
                     propertyValue = !string.IsNullOrEmpty(propertyValue) ? propertyValue : string.Empty;
-                    var rawPropertyValue = Convert.ChangeType(propertyValue, propertyInfoType.PropertyType);
 
-                    conditions.Add(CreatePropertyCondition(automationProperty, rawPropertyValue));
+                    if (!propertyOperation.Success)
+                    {
+                        var rawPropertyValue = Convert.ChangeType(propertyValue, propertyInfoType.PropertyType);
+                        nativeConditions.Add(CreatePropertyCondition(automationProperty, rawPropertyValue));
+                    }
+                    else
+                    {
+                        var condition = CustomConditionHelpers.CreateCondition(automationProperty, propertyValue, propertyOperation.Value);
+                        if(condition != null) customConditions.Add(condition);
+                    }
                 }
             }
 
-            return conditions.Count > 1 ? conditions.Aggregate((x, y) => new AndCondition(x, y)) : conditions[0];
+            var filterGroup = match.Groups[7];
+            if (filterGroup.Success)
+            {
+                foreach (Capture filter in filterGroup.Captures)
+                {
+                    var filterMatch = FilterPattern.Match(filter.Value);
+
+                    if (!filterMatch.Success) continue;
+
+                    var filterCondition = FilterHelpers.CreateFilter(filterMatch.Groups[1].Value, filterMatch.Groups[2].Value);
+                    if (filterCondition != null) customFilters.Add(filterCondition);
+                }
+            }
+
+            result.NativeCondition = nativeConditions.Count > 1 ? nativeConditions.Aggregate((x, y) => new AndCondition(x, y)) : nativeConditions[0];
+            result.CustomConditions = customConditions;
+            result.CustomFilters = customFilters;
+
+            return result;
         }
 
         public static List<SelectorItem> SplitSelector(string selector)

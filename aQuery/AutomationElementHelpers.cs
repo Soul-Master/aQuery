@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -60,8 +61,7 @@ namespace aQuery
         public static string GetSelector(this AutomationElement element)
         {
             var temp = new List<string>();
-            var a = new aQuery(element);
-            a.Element.GetParentsAndSelf().ForEach(x =>
+            element.GetParentsAndSelf().ForEach(x =>
             {
                 temp.Add(x.GetElementSelector());
             });
@@ -69,43 +69,83 @@ namespace aQuery
             return temp.Count > 1 ? temp.Aggregate((i, j) => j + SelectorItem.ChildrenSeparator + i) : temp[0];
         }
 
-        public static aQuery Find(this AutomationElement element, List<SelectorItem> selectorItems)
+        [SuppressMessage("ReSharper", "PossibleMultipleEnumeration")]
+        public static List<AutomationElement> Find(this AutomationElement element, List<SelectorItem> selectorItems , int index)
         {
-            var index = 0;
-            var result = new aQuery();
+            var result = new List<AutomationElement>();
+            var selectorItem = selectorItems[index];
+            var condition = selectorItem.SelectorCondition;
+            var matchedElements = element.FindAll(selectorItem.Scope, condition.NativeCondition).Cast<AutomationElement>();
 
-            while (index < selectorItems.Count)
+            if (!matchedElements.Any()) return result;
+            if (condition.CustomConditions.Count > 0)
             {
-                var selectorItem = selectorItems[index];
-                var matchedElement = element.FindFirst(selectorItem.Scope, selectorItem.GetCondition());
+                matchedElements = matchedElements.Where(x => condition.CustomConditions.All(y => y.IsMatch(x)));
+            }
+            if (condition.CustomFilters.Count > 0)
+            {
+                matchedElements = condition.CustomFilters.Aggregate(matchedElements, (current, filter) => filter.Filter(current));
+            }
 
-                if (matchedElement == null) break;
+            if (index == selectorItems.Count - 1)
+            {
+                return matchedElements.ToList();
+            }
 
-                if (index == selectorItems.Count - 1)
+            foreach (var el in matchedElements)
+            {
+                var subResult = el.Find(selectorItems, index + 1);
+
+                if (subResult != null && subResult.Count > 0)
                 {
-                    result.Element = matchedElement;
+                    result.AddRange(subResult);
                 }
-                else
-                {
-                    element = matchedElement;
-                }
-                index++;
             }
 
             return result;
         }
-        
-        public static aQuery Find(this AutomationElement element, string selector, int maxRetry = 19)
+
+        public static List<AutomationElement> Find(this List<AutomationElement> elements, string selector, int maxRetry = 20)
         {
-            aQuery result = null;
+            List<AutomationElement> result = new List<AutomationElement>();
             var selectorItems = SelectorItem.SplitSelector(selector);
             var counter = maxRetry;
 
             while (counter >= 0)
             {
-                result = element.Find(selectorItems);
+                foreach (AutomationElement el in elements)
+                {
+                    var subResult = el.Find(selectorItems, 0);
 
-                if (result.IsExists) return result;
+                    if (subResult != null && subResult.Count > 0)
+                    {
+                        result.AddRange(subResult);
+                    }
+                }
+
+                if (result.Count > 0) return result;
+                counter--;
+
+                if (counter >= 0)
+                {
+                    Thread.Sleep(50);
+                }
+            }
+
+            return result;
+        }
+        
+        public static List<AutomationElement> Find(this AutomationElement element, string selector, int maxRetry = 19)
+        {
+            List<AutomationElement> result = null;
+            var selectorItems = SelectorItem.SplitSelector(selector);
+            var counter = maxRetry;
+
+            while (counter >= 0)
+            {
+                result = element.Find(selectorItems, 0);
+
+                if (result.Count > 0) return result;
                 counter--;
 
                 if (counter >= 0)
@@ -182,7 +222,7 @@ namespace aQuery
                 return false;
             }
         }
-
+        
         public static void SetText(this AutomationElement element, string value)
         {
             // Validate arguments / initial setup
@@ -231,6 +271,8 @@ namespace aQuery
 
                 ((ValuePattern)valuePattern).SetValue(value);
             }
+
+            SendKeys.SendWait("{ENTER}");
         }
 
         public static void SetDateTime(this AutomationElement element, DateTime value)
