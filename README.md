@@ -47,3 +47,5 @@ For selecting title bar of Calculator, you can use one of the following selector
 - `"'Calculator' title bar"` specify by Name and LocalizedControlType properties
 - `[AutomationId=TitleBar][ControlType=ControlType.TitleBar]` specify by some properties
 - `title bar:first` specify by `LocalizedControlType` property and get the first one
+
+For more example, please look at source code of [aQuery.Amibroker](aQuery.Amibroker) project. It contains a lot of useful code for using aQuery.
