@@ -30,7 +30,7 @@ Selectors
 ---------
 As you know, the hardest part of automating application on Windows desktop is selecting control. Normally, application isn't designed to be queried. Control structure doesn't look simple just like normal web page.
 
-![Calculator App](https://cdn.rawgit.com/Soul-Master/aQuery/master/Calculator1.png)
+![Calculator App](https://cdn.rawgit.com/Soul-Master/aQuery/master/demo/Calculator1.png)
 
 Most of control properties that we can retrieve via  [AutomationElement](https://msdn.microsoft.com/en-us/library/system.windows.automation.automationelement(v=vs.110).aspx) doesn't unique. We cannot select control by using only one property.
 
