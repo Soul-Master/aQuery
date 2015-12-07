@@ -5,7 +5,8 @@ aQuery is a fast, small, and feature-rich C# library that based on [Windows Auto
 
 Overview
 ---------
-![Overview image](aQuery/Overview.PNG?raw=true "Title")
+
+![Overview image](./aQuery/Overview.PNG?raw=true)
 
 Here is the simplest form of aQuery syntax. The following statement use aQuery to select window element with ProcessId equals `1234`
 
