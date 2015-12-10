@@ -3,8 +3,8 @@ namespace aQuery.Win32
 {
     static class NativeMethods
     {
-        public const int GDT_VALID = 0;
-        public const int BM_CLICK = 0x00F5;
+        internal const int GDT_VALID = 0;
+        internal const int BM_CLICK = 0x00F5;
 
         // Date/Time picker
         internal const int DTM_GETSYSTEMTIME = 0x1001;

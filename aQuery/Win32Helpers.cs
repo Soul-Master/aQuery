@@ -35,20 +35,50 @@ namespace aQuery
             throw new AccessViolationException("Unable to write memory to process with an id " + procId);
         }
 
-        internal static void Click(System.Drawing.Point point)
+        private static int CalculateAbsoluteCoordinateX(int x)
         {
-            var handle = SafeNativeMethods.WindowFromPoint(point);
-            // Send the click message
-            if (handle != IntPtr.Zero)
-            {
-                SafeNativeMethods.SendMessage(handle, NativeMethods.BM_CLICK, IntPtr.Zero, IntPtr.Zero);
-            }
+            return x * 65536 / SafeNativeMethods.GetSystemMetrics(SystemMetric.SM_CXSCREEN);
         }
 
-        internal static void Click(System.Windows.Point point)
+        private static int CalculateAbsoluteCoordinateY(int y)
         {
-            var drawingPoint = new System.Drawing.Point((int)point.X, (int)point.Y);
-            Click(drawingPoint);
+            return y * 65536 / SafeNativeMethods.GetSystemMetrics(SystemMetric.SM_CYSCREEN);
+        }
+
+        public static void Click(int windowHandle, int x, int y)
+        {
+            POINT p;
+            SafeNativeMethods.GetCursorPos(out p);
+
+            var mouseInput = new INPUT
+            {
+                type = SendInputEventType.InputMouse
+            };
+            mouseInput.mkhi.mi.dx = CalculateAbsoluteCoordinateX(x);
+            mouseInput.mkhi.mi.dy = CalculateAbsoluteCoordinateY(y);
+            mouseInput.mkhi.mi.mouseData = 0;
+            
+            mouseInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_MOVE | MouseEventFlags.MOUSEEVENTF_ABSOLUTE;
+            SafeNativeMethods.SendInput(1, ref mouseInput, Marshal.SizeOf(new INPUT()));
+
+            mouseInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_LEFTDOWN;
+            SafeNativeMethods.SendInput(1, ref mouseInput, Marshal.SizeOf(new INPUT()));
+
+            mouseInput.mkhi.mi.dwFlags = MouseEventFlags.MOUSEEVENTF_LEFTUP;
+            SafeNativeMethods.SendInput(1, ref mouseInput, Marshal.SizeOf(new INPUT()));
+
+            // Restore mouse position
+            SafeNativeMethods.SetCursorPos(p.X, p.Y);
+        }
+
+        public static void Click(int windowHandle, System.Drawing.Point point)
+        {
+            Click(windowHandle, point.X, point.Y);
+        }
+
+        public static void Click(int windowHandle, System.Windows.Point point)
+        {
+            Click(windowHandle, (int)point.X, (int)point.Y);
         }
     }
 }

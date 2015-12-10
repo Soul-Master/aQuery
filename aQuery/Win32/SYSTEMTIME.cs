@@ -6,7 +6,7 @@ namespace aQuery.Win32
 {
     [StructLayout(LayoutKind.Sequential)]
     // ReSharper disable once InconsistentNaming
-    public class SYSTEMTIME
+    internal class SYSTEMTIME
     {
         public SYSTEMTIME() {}
 

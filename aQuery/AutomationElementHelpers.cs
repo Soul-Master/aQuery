@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Forms;
 using aQuery.Win32;
@@ -25,6 +27,19 @@ namespace aQuery
 
                 elementNode = TreeWalker.ControlViewWalker.GetNextSibling(elementNode);
             }
+        }
+
+        public static T GetPattern<T>(this AutomationElement element)
+            where T : BasePattern
+        {
+            object objPattern;
+            var patternType = typeof(T);
+            var pattern = patternType.GetField("Pattern");
+            var patternValue = (AutomationPattern)pattern.GetValue(null);
+
+            if (!element.TryGetCurrentPattern(patternValue, out objPattern)) return null;
+
+            return (T)objPattern;
         }
 
         private static string GetElementSelector(this AutomationElement element)
@@ -183,6 +198,28 @@ namespace aQuery
             return !element.Current.IsOffscreen;
         }
 
+        public static DataTable GetDataTable(this AutomationElement element)
+        {
+            var dt = new DataTable();
+            element.Find("header > header item").ForEach(x =>
+            {
+                dt.Columns.Add(x.GetText(), typeof(string));
+            });
+            element.Find("item").ForEach(x =>
+            {
+                var row = dt.NewRow();
+                var texts = x.Find("text");
+
+                for (var i = 0; i < texts.Count; i++)
+                {
+                    row[i] = texts[i].GetText();
+                }
+                dt.Rows.Add(row);
+            });
+
+            return dt;
+        }
+
         #region Action
 
         public static bool Click(this AutomationElement element)
@@ -190,24 +227,42 @@ namespace aQuery
             var patternObj = element.GetPattern<InvokePattern>();
 
             if (patternObj == null) return false;
-            
+
             patternObj.Invoke();
             return true;
         }
 
-        public static bool ClickViaSendMessage(this AutomationElement element)
+        /// <summary>
+        /// Trigger click event by moving mouse to clickable point and clicking
+        /// </summary>
+        public static bool MouseClick(this AutomationElement element)
         {
             try
             {
                 var p = element.GetClickablePoint();
-                Win32Helpers.Click(p);
+                Win32Helpers.Click(element.Current.NativeWindowHandle, p);
 
                 return true;
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Cannot Click via SendMessage");
-                Console.WriteLine(ex.Message);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Trigger click event by moving mouse to clickable point and clicking
+        /// </summary>
+        public static bool MouseClick(this Point point, int windowHandle)
+        {
+            try
+            {
+                Win32Helpers.Click(windowHandle, point);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
                 return false;
             }
         }
@@ -257,8 +312,6 @@ namespace aQuery
                 SendKeys.SendWait("{DEL}");     // Delete selection
                 SendKeys.SendWait(value);
             }
-
-            SendKeys.SendWait("{ENTER}");
         }
 
         public static void SetDateTime(this AutomationElement element, DateTime value)
@@ -296,17 +349,25 @@ namespace aQuery
             }
         }
 
-        public static T GetPattern<T>(this AutomationElement element)
-            where T : BasePattern
+        public static bool Select(this AutomationElement element)
         {
-            object objPattern;
-            var patternType = typeof(T);
-            var pattern = patternType.GetField("Pattern");
-            var patternValue = (AutomationPattern)pattern.GetValue(null);
+            var patternObj = element.GetPattern<SelectionItemPattern>();
 
-            if (!element.TryGetCurrentPattern(patternValue, out objPattern)) return null;
+            if (patternObj == null) return false;
 
-            return (T)objPattern;
+            patternObj.Select();
+            return true;
+        }
+
+        public static void ShowButtonMenu(this AutomationElement element)
+        {
+            Point point;
+            var bound = element.Current.BoundingRectangle;
+            var handle = element.Current.NativeWindowHandle;
+
+            element.TryGetClickablePoint(out point);
+            point.X = bound.TopRight.X - 5;
+            point.MouseClick(handle);
         }
 
         #endregion

@@ -112,18 +112,5 @@ namespace aQuery.Amibroker
                 .Text(path);
             a("'Open' button", openDialog).Click();
         }
-
-        /// <summary>
-        /// The latest backtest report will be moved to destination directory
-        /// </summary>
-        public bool MoveBacktestReport(string reportName, string destinationDir)
-        {
-            var reports = ReportsDir.GetDirectories(reportName + "-*");
-            if (reports.Length == 0) return false;
-
-            var reportDir = reports.Last();
-            
-            return Win32Helpers.MoveFolder(reportDir.FullName, destinationDir);
-        }
     }
 }

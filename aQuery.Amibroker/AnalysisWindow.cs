@@ -1,8 +1,9 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Automation;
-using System.Windows.Forms;
 using static aQuery.aQuery;
 
 namespace aQuery.Amibroker
@@ -25,27 +26,32 @@ namespace aQuery.Amibroker
         private const string progressPane = "'Progress' tool bar[ClassName=XTPToolBar]";
         //private const string progressCancelButton = "button[AccessKey=C]";
         private const string progressTextButton = "button[AccessKey=]";
-        private const string resultListGrid = "pane[ClassName=AfxFrameOrView80] > pane[ClassName=AfxWnd80] > data grid[ClassName=SysListView32]";
-        
+        private const string outputPane = "pane[AutomationId=59648] > pane[AutomationId=1]";
+        private const string resultListGrid = "data grid[AutomationId=1005]";
+        private const string infoList = "list[AutomationId=1006]";
+        private const string walkForwardGrid = "data grid[AutomationId=1007]";
+
         // values
-        private const string dateRangeAllQuotes= "All quotes";
+        private const string dateRangeAllQuotes = "All quotes";
         private const string dateRangeFromToDates = "From-To dates";
         private const string dateRangeRecentBars = " recent bar(s)";
         private const string dateRangeRecentDays = " recent day(s)";
         // ReSharper restore InconsistentNaming
 
         public AmibrokerApp App { get; }
-        public aQuery Element { get; }
+        public aQuery Analysis { get; }
         public WindowPattern Window { get; }
         public aQuery Toolbar { get; }
         public aQuery BacktesterSetting { get; private set; }
+        public aQuery OutputPane { get; }
 
         public AnalysisWindow(AmibrokerApp app)
         {
             App = app;
-            Element = a(analysisWindow, app.Window);
-            Toolbar = a(toolbarPane, Element);
-            Window = Element.Elements[0].GetPattern<WindowPattern>();
+            Analysis = a(analysisWindow, app.Window);
+            Toolbar = a(toolbarPane, Analysis);
+            Window = Analysis.Elements[0].GetPattern<WindowPattern>();
+            OutputPane = a(outputPane, Analysis);
 
             if (Window.Current.WindowVisualState == WindowVisualState.Normal)
             {
@@ -117,47 +123,121 @@ namespace aQuery.Amibroker
             });
         }
 
-        public async Task<bool> Backtest(IProgress<AnalysisProgress> progress = null)
+        public async Task Backtest(IProgress<AnalysisProgress> progress = null)
         {
             a(backtestButton, Toolbar).Click();
             await WaitUntilDone(progress);
-
-            return true;
         }
 
-        public async Task<bool> Backtest(string path, IProgress<AnalysisProgress> progress = null)
+        public async Task Backtest(string path, IProgress<AnalysisProgress> progress = null)
         {
             SelectFormula(path);
 
-            return await Backtest(progress);
+            await Backtest(progress);
         }
 
-        public async Task<bool> Optimize(IProgress<AnalysisProgress> progress = null)
+        public async Task Optimize(IProgress<AnalysisProgress> progress = null)
         {
             a(optimizeButton, Toolbar).Click();
             await WaitUntilDone(progress);
-
-            return true;
         }
 
-        public async Task<bool> Optimize(string path, IProgress<AnalysisProgress> progress = null)
+        public async Task WalkForwardTest(string target, IProgress<AnalysisProgress> progress = null)
         {
-            SelectFormula(path);
+            if (BacktesterSetting == null) OpenSetting();
+            BacktesterSetting = App.Window.Find(settingDialog);
+            var walkForwardTab = a("tab > 'Walk-Forward' tab item", BacktesterSetting);
+            walkForwardTab.Select();
+            a("combo box[AutomationId=1494]", walkForwardTab).Value(target);
+            a("'OK' button", BacktesterSetting).Click();
+            BacktesterSetting = null;
 
-            return await Optimize(progress);
+            a(optimizeButton, Toolbar).ShowButtonMenu();
+            a("menu[ClassName=XTPPopupBar] > 'Walk-Forward' menu item", App.Window).Click();
+
+            await WaitUntilDone(progress);
         }
 
-        public void ExportResultList(string excelFile, string workSheetName)
+        void SwitchOutputTab(int offsetLeft, int offetBottom)
         {
-            var aGrid = a(resultListGrid, Element);
-            var items = a("item", aGrid);
-            items.SelectItem();
+            var rect = OutputPane.Elements[0].Current.BoundingRectangle;
+            var resultListTabPoint = new Point(rect.Left + offsetLeft, rect.Bottom - offetBottom);
+            resultListTabPoint.MouseClick((int)App.Broker.Handle);
 
-            Clipboard.Clear();
-            SendKeys.SendWait("^c");
-            var text = Clipboard.GetText();
-            ClosedXmlHelpers.ConvertTextToExcel(excelFile, workSheetName, text);
-            Clipboard.Clear();
+            Thread.Sleep(500);
+        }
+
+        public void ExportResultList(string excelFile, string workSheetName = ClosedXmlHelpers.DefaultSheetName)
+        {
+            var attempt = 5;
+            aQuery aGrid = null;
+
+            while (aGrid == null || aGrid.Elements.Count == 0)
+            {
+                SwitchOutputTab(100, 9);
+                aGrid = a(resultListGrid, OutputPane);
+
+                if (attempt == 0) return;
+                attempt--;
+                Thread.Sleep(250);
+            }
+
+            aGrid.DataTable().SaveAsExcel(excelFile);
+        }
+
+        public string GetAnalysisInfo()
+        {
+            var attempt = 5;
+            aQuery list = null;
+
+            while (list == null || list.Elements.Count == 0)
+            {
+                SwitchOutputTab(150, 9);
+                list = a(infoList, OutputPane);
+
+                if (attempt == 0) return string.Empty;
+                attempt--;
+                Thread.Sleep(250);
+            }
+
+            var items = a("list item", list).Elements.Select(x => x.GetText()).ToList();
+            var lastTaskIndex = -1;
+
+            for (var i = items.Count - 2; i > 0; i--)
+            {
+                if (items[i].StartsWith("-----"))
+                {
+                    lastTaskIndex = i;
+                    break;
+                }
+            }
+
+            if (lastTaskIndex > 0)
+            {
+                items = items.Skip(lastTaskIndex + 1).ToList();
+            }
+
+            return String.Join(Environment.NewLine, items.Take(items.Count - 1));
+        }
+
+        public int ExportWalkForward(string excelFile, string workSheetName = ClosedXmlHelpers.DefaultSheetName)
+        {
+            var attempt = 5;
+            aQuery aGrid = null;
+
+            while (aGrid == null || aGrid.Elements.Count == 0)
+            {
+                SwitchOutputTab(240, 9);
+                aGrid = a(walkForwardGrid, OutputPane);
+
+                if (attempt == 0) return 0;
+                attempt--;
+                Thread.Sleep(250);
+            }
+            var dataTable = aGrid.DataTable();
+            dataTable.SaveAsExcel(excelFile);
+
+            return dataTable.Rows.Count;
         }
 
         /// <summary>
@@ -209,6 +289,44 @@ namespace aQuery.Amibroker
         {
             // TODO: Support set filter model
             a(filterSetting, Toolbar).Value("*Filter");
+        }
+
+        /// <summary>
+        /// The latest backtest report will be moved to destination directory
+        /// </summary>
+        public bool MoveBacktestReport(string reportName, string destinationDir)
+        {
+            var reports = App.ReportsDir.GetDirectories(reportName + "-*");
+            if (reports.Length == 0) return false;
+
+            var reportDir = reports.OrderByDescending(x => x.Name).Last();
+
+            return Win32Helpers.MoveFolder(reportDir.FullName, destinationDir);
+        }
+
+        /// <summary>
+        /// The latest backtest report will be moved to destination directory
+        /// </summary>
+        public bool MoveWalkForwardReport(string reportName, string destinationDir, int numberOfYears)
+        {
+            var outOfSampleDir = App.ReportsDir.GetDirectories(reportName + " - Out-of-Sample summary-*")
+                .OrderByDescending(x => x.LastWriteTime)
+                .LastOrDefault();
+
+            if (outOfSampleDir == null) return false;
+
+            Win32Helpers.MoveFolder(outOfSampleDir.FullName, destinationDir);
+
+            var yearReports = App.ReportsDir.GetDirectories(reportName + "-*")
+                .OrderByDescending(x => x.LastWriteTime)
+                .Take(numberOfYears);
+
+            foreach (var report in yearReports)
+            {
+                Win32Helpers.MoveFolder(report.FullName, destinationDir);
+            }
+
+            return true;
         }
     }
 }

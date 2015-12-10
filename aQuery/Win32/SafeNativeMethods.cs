@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // ReSharper disable InconsistentNaming
 namespace aQuery.Win32
 {
-    public static class SafeNativeMethods
+    internal static class SafeNativeMethods
     {
         [DllImport("user32.dll")]
         public static extern IntPtr SendMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
@@ -26,5 +26,21 @@ namespace aQuery.Win32
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool CloseHandle(IntPtr hHandle);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        public static extern uint SendInput(uint nInputs, ref INPUT pInputs, int cbSize);
+
+        [DllImport("user32.dll")]
+        public static extern int GetSystemMetrics(SystemMetric smIndex);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        public static extern bool GetCursorPos(out POINT lpPoint);
+
+        [DllImport("user32.dll")]
+        public static extern bool SetCursorPos(int X, int Y);
+
+        [DllImport("user32.dll", EntryPoint = "SetForegroundWindow")]
+        public static extern int SetForegroundWindow(int hwnd);
     }
 }

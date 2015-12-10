@@ -38,6 +38,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
     <Reference Include="UIAutomationClient" />
     <Reference Include="UIAutomationTypes" />
     <Reference Include="WindowsBase" />
@@ -66,10 +67,19 @@
     <Compile Include="Win32Helpers.cs" />
     <Compile Include="Win32\AllocationType.cs" />
     <Compile Include="Win32\FreeType.cs" />
+    <Compile Include="Win32\HARDWAREINPUT.cs" />
+    <Compile Include="Win32\KEYBDINPUT.cs" />
     <Compile Include="Win32\MemoryProtection.cs" />
+    <Compile Include="Win32\MouseEventFlags.cs" />
+    <Compile Include="Win32\MouseInputData.cs" />
+    <Compile Include="Win32\MouseKeybdhardwareInputUnion.cs" />
     <Compile Include="Win32\NativeMethods.cs" />
     <Compile Include="Win32\ProcessAccessFlags.cs" />
     <Compile Include="Win32\SafeNativeMethods.cs" />
+    <Compile Include="Win32\INPUT.cs" />
+    <Compile Include="Win32\SendInputEventType.cs" />
+    <Compile Include="Win32\SystemMetric.cs" />
+    <Compile Include="Win32\POINT.cs" />
     <Compile Include="Win32\SYSTEMTIME.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net.Mime;
@@ -47,6 +48,12 @@ namespace aQuery
         }
 
         [SuppressMessage("ReSharper", "InconsistentNaming")]
+        public static aQuery a(string selector, AutomationElement context)
+        {
+            return a(context.Find(selector));
+        }
+
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
         public static aQuery a(params AutomationElement[] elements)
         {
             return new aQuery(elements);
@@ -66,16 +73,6 @@ namespace aQuery
 
                 return new aQuery(matchedElements.ToArray());
             }
-        }
-
-        public static aQuery Create(params AutomationElement[] elements)
-        {
-            return new aQuery(elements);
-        }
-
-        public static aQuery Create(List<AutomationElement> elements)
-        {
-            return new aQuery(elements);
         }
 
         #endregion
@@ -106,6 +103,7 @@ namespace aQuery
             using (PerformanceTester.Start(Log(nameof(Find), selector)))
             {
                 var result = Elements.Find(selector);
+
                 if (result.Count == 0)
                 {
                     Console.WriteLine($"Cannot find element with `{selector}` selector");
@@ -115,12 +113,14 @@ namespace aQuery
                     Console.WriteLine($"Found {result.Count} elements with `{selector}` selector");
                 }
 
-                return Create(result);
+                return a(result);
             }
         }
 
         public string GetSelector()
         {
+            if (Elements == null || Elements.Count == 0) return null;
+
             // TODO: Support combine selector
             // [selector1],[selector2],[selector3]
             return Elements[0].GetSelector();
@@ -130,6 +130,8 @@ namespace aQuery
         {
             using (PerformanceTester.Start(Log("get" + nameof(MediaTypeNames.Text))))
             {
+                if (Elements == null || Elements.Count == 0) return null;
+
                 return Elements?[0].GetText();
             }
         }
@@ -138,6 +140,8 @@ namespace aQuery
         {
             using (PerformanceTester.Start(Log("get" + nameof(Value))))
             {
+                if (Elements == null || Elements.Count == 0) return null;
+
                 return Elements?[0].GetValue();
             }
         }
@@ -146,9 +150,19 @@ namespace aQuery
         {
             using (PerformanceTester.Start(Log("get" + nameof(IsVisible))))
             {
-                if (Elements == null) return false;
+                if (Elements == null || Elements.Count == 0) return false;
 
                 return Elements.Any(x => x.IsVisible());
+            }
+        }
+
+        public DataTable DataTable()
+        {
+            using (PerformanceTester.Start(Log("get" + nameof(DataTable))))
+            {
+                if (Elements == null || Elements.Count == 0) return null;
+
+                return Elements?[0].GetDataTable();
             }
         }
 
@@ -166,14 +180,14 @@ namespace aQuery
             if (result || (t.Join(TimeSpan.FromMilliseconds(1000)) && result)) return;
             if (t.IsAlive) t.Abort();
 
-            element.ClickViaSendMessage();
+            element.MouseClick();
         }
 
         public aQuery Click()
         {
             using (PerformanceTester.Start(Log(nameof(Click))))
             {
-                if (Elements == null) return this;
+                if (Elements == null || Elements.Count == 0) return this;
 
                 Elements.ForEach(TryToClick);
 
@@ -185,7 +199,7 @@ namespace aQuery
         {
             using (PerformanceTester.Start(Log("set" + nameof(MediaTypeNames.Text), $"\"{value}\"")))
             {
-                if (Elements == null) return this;
+                if (Elements == null || Elements.Count == 0) return this;
 
                 Elements.ForEach(x => x.SetText(value));
 
@@ -197,7 +211,7 @@ namespace aQuery
         {
             using (PerformanceTester.Start(Log("set" + nameof(DateTime), $"\"{value.ToShortDateString()}\"")))
             {
-                if (Elements == null) return this;
+                if (Elements == null || Elements.Count == 0) return this;
 
                 Elements.ForEach(x => x.SetDateTime(value));
 
@@ -209,24 +223,32 @@ namespace aQuery
         {
             using (PerformanceTester.Start(Log("set" + nameof(Value))))
             {
-                if (Elements == null) return this;
+                if (Elements == null || Elements.Count == 0) return this;
 
                 Elements.ForEach(x => x.SetText(value));
                 return this;
             }
         }
 
-        public aQuery SelectItem()
+        public aQuery Select()
         {
-            using (PerformanceTester.Start(Log(nameof(SelectItem))))
+            using (PerformanceTester.Start(Log(nameof(Select))))
             {
-                if (Elements == null) return this;
+                if (Elements == null || Elements.Count == 0) return this;
 
-                Elements.ForEach(x =>
-                {
-                    var selectionItem = x.GetPattern<SelectionItemPattern>();
-                    selectionItem.AddToSelection();
-                });
+                Elements.ForEach(x => x.Select());
+
+                return this;
+            }
+        }
+
+        public aQuery ShowButtonMenu()
+        {
+            using (PerformanceTester.Start(Log(nameof(ShowButtonMenu))))
+            {
+                if (Elements == null || Elements.Count == 0) return this;
+
+                Elements.ForEach(x => x.ShowButtonMenu());
 
                 return this;
             }

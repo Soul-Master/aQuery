@@ -4,7 +4,7 @@
 namespace aQuery.Win32
 {
     [Flags]
-    public enum ProcessAccessFlags : uint
+    internal enum ProcessAccessFlags : uint
     {
         All = 0x001F0FFF,
         Terminate = 0x00000001,
