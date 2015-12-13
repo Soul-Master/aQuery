@@ -122,13 +122,13 @@ namespace aQuery
 
         public static List<AutomationElement> Find(this List<AutomationElement> elements, string selector, int maxRetry = 20)
         {
-            List<AutomationElement> result = new List<AutomationElement>();
+            var result = new List<AutomationElement>();
             var selectorItems = SelectorItem.SplitSelector(selector);
             var counter = maxRetry;
 
             while (counter >= 0)
             {
-                foreach (AutomationElement el in elements)
+                foreach (var el in elements)
                 {
                     var subResult = el.Find(selectorItems, 0);
 
@@ -195,12 +195,14 @@ namespace aQuery
 
         public static bool IsVisible(this AutomationElement element)
         {
-            return !element.Current.IsOffscreen;
+            return !element.Current.BoundingRectangle.IsEmpty;
         }
 
         public static DataTable GetDataTable(this AutomationElement element)
         {
+            // All columns should not be re-ordered and hidden because commented code doesn't work with primary column(No. in Amibroker).
             var dt = new DataTable();
+            //element.Find("header > header item:visible:orderByAutomationNo").ForEach(x =>
             element.Find("header > header item").ForEach(x =>
             {
                 dt.Columns.Add(x.GetText(), typeof(string));
@@ -208,6 +210,7 @@ namespace aQuery
             element.Find("item").ForEach(x =>
             {
                 var row = dt.NewRow();
+                //var texts = x.Find("text:visible:orderByHPositionOrder");
                 var texts = x.Find("text");
 
                 for (var i = 0; i < texts.Count; i++)
@@ -237,17 +240,10 @@ namespace aQuery
         /// </summary>
         public static bool MouseClick(this AutomationElement element)
         {
-            try
-            {
-                var p = element.GetClickablePoint();
-                Win32Helpers.Click(element.Current.NativeWindowHandle, p);
+            var p = element.GetClickablePoint();
+            var handle = element.Current.NativeWindowHandle;
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
-            }
+            return p.MouseClick(handle);
         }
 
         /// <summary>

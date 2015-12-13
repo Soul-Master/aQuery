@@ -7,6 +7,8 @@ using System.Net.Mime;
 using System.Threading;
 using System.Windows.Automation;
 using aQuery.Log;
+using aQuery.Win32;
+using static aQuery.Log.LogHelpers;
 
 namespace aQuery
 {
@@ -85,13 +87,12 @@ namespace aQuery
                 if (timeSpan == null)
                 {
                     // Begin
-                    //Console.WriteLine(name + (!string.IsNullOrEmpty(argument) ? ": " + argument : string.Empty));
                     return;
                 }
 
                 if (timeSpan.Value.Milliseconds > MinLogTime)
                 {
-                    Console.WriteLine(name + (!string.IsNullOrEmpty(argument) ? ": " + argument : string.Empty) + " took " + timeSpan.Value.Milliseconds + " ms.");
+                    Info(name + (!string.IsNullOrEmpty(argument) ? ": " + argument : string.Empty) + " took " + timeSpan.Value.Milliseconds + " ms.");
                 }
             };
 
@@ -106,11 +107,11 @@ namespace aQuery
 
                 if (result.Count == 0)
                 {
-                    Console.WriteLine($"Cannot find element with `{selector}` selector");
+                    Warn($"Cannot find element with `{selector}` selector");
                 }
                 if (result.Count > 1)
                 {
-                    Console.WriteLine($"Found {result.Count} elements with `{selector}` selector");
+                    Info($"Found {result.Count} elements with `{selector}` selector");
                 }
 
                 return a(result);
@@ -166,6 +167,16 @@ namespace aQuery
             }
         }
 
+        public System.Windows.Rect? BoundingRectangle()
+        {
+            using (PerformanceTester.Start(Log("get" + nameof(BoundingRectangle))))
+            {
+                if (Elements == null || Elements.Count == 0) return null;
+
+                return Elements?[0].Current.BoundingRectangle;
+            }
+        }
+
         #region Action
 
         private static void TryToClick(AutomationElement element)
@@ -177,7 +188,7 @@ namespace aQuery
             });
 
             t.Start();
-            if (result || (t.Join(TimeSpan.FromMilliseconds(1000)) && result)) return;
+            if (result || (t.Join(TimeSpan.FromMilliseconds(2000)) && result)) return;
             if (t.IsAlive) t.Abort();
 
             element.MouseClick();
@@ -249,6 +260,18 @@ namespace aQuery
                 if (Elements == null || Elements.Count == 0) return this;
 
                 Elements.ForEach(x => x.ShowButtonMenu());
+
+                return this;
+            }
+        }
+
+        public aQuery ShowWindow()
+        {
+            using (PerformanceTester.Start(Log(nameof(ShowButtonMenu))))
+            {
+                if (Elements == null || Elements.Count == 0) return this;
+
+                SafeNativeMethods.SetForegroundWindow(Elements[0].Current.NativeWindowHandle);
 
                 return this;
             }

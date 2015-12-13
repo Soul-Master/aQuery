@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Automation;
+using static aQuery.Log.LogHelpers;
 
 namespace aQuery
 {
@@ -15,7 +16,7 @@ namespace aQuery
             {ChildrenSeparator, TreeScope.Children},
             {DescendantsSeparator, TreeScope.Descendants}
         };
-        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[]+))?(\[[a-z_]+[\*\^\$]?=[^\]]*\])*(\:[a-z]+(\([^\)]+\))?)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static Regex SelectorPattern = new Regex(@"^('([^']+)')?(( |^)([^\[\:]+))?(\[[a-z_]+[\*\^\$]?=[^\]]*\])*(\:[a-z]+(\([^\)]+\))?)*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
         public static Regex PropertySelectorPattern = new Regex(@"\[([a-z_]+)([\*\^\$])?=([^\]]*)\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public static Regex FilterPattern = new Regex(@"\:([a-z]+)(\(([^\)]+)\))?", RegexOptions.IgnoreCase | RegexOptions.Compiled);
         public string Selector { get; set; }
@@ -83,7 +84,7 @@ namespace aQuery
 
                     if (fieldInfo == null)
                     {
-                        Console.WriteLine($"Property Name: `{propertyName}` doesn't found.");
+                        Warn($"Property Name: `{propertyName}` doesn't found.");
                         continue;
                     }
 

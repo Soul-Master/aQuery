@@ -48,6 +48,7 @@ namespace aQuery
         public static void Click(int windowHandle, int x, int y)
         {
             POINT p;
+            SafeNativeMethods.SetForegroundWindow(windowHandle);
             SafeNativeMethods.GetCursorPos(out p);
 
             var mouseInput = new INPUT

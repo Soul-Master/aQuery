@@ -46,6 +46,8 @@
   <ItemGroup>
     <Compile Include="aQuery.cs" />
     <Compile Include="AutomationElementHelpers.cs" />
+    <Compile Include="AutomationNoOrder.cs" />
+    <Compile Include="ColumnIndexOrder.cs" />
     <Compile Include="ConditionModel.cs" />
     <Compile Include="ContainsPropertyValueCondition.cs" />
     <Compile Include="CustomConditionHelpers.cs" />
@@ -54,9 +56,11 @@
     <Compile Include="EndWithsPropertyValueCondition.cs" />
     <Compile Include="FilterHelpers.cs" />
     <Compile Include="FirstFilter.cs" />
+    <Compile Include="HorizontalPositionOrder.cs" />
     <Compile Include="ICustomCondition.cs" />
     <Compile Include="ICustomFilter.cs" />
     <Compile Include="LastFilter.cs" />
+    <Compile Include="Log\LogHelpers.cs" />
     <Compile Include="Log\PerformanceTester.cs" />
     <Compile Include="MatchSelectorCondition.cs" />
     <Compile Include="ProcessHelpers.cs" />
@@ -64,6 +68,7 @@
     <Compile Include="SelectorItem.cs" />
     <Compile Include="SelectorType.cs" />
     <Compile Include="StartWithsPropertyValueCondition.cs" />
+    <Compile Include="VisibleOrder.cs" />
     <Compile Include="Win32Helpers.cs" />
     <Compile Include="Win32\AllocationType.cs" />
     <Compile Include="Win32\FreeType.cs" />
